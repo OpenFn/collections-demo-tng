@@ -1,0 +1,58 @@
+name: collections-demo
+description: |
+  TNG demo
+
+credentials: null
+workflows:
+  Get-Quote:
+    name: Get Quote
+    jobs:
+      Get-quote:
+        name: Get quote
+        adaptor: '@openfn/language-common@latest'
+        credential: null
+        body:
+          path: get-quote.js
+
+    triggers:
+      webhook:
+        type: webhook
+        enabled: true
+    edges:
+      webhook->Get-quote:
+        source_trigger: webhook
+        target_job: Get-quote
+        condition_type: always
+        enabled: true
+  Upload-Scripts:
+    name: Upload Scripts
+    jobs:
+      save-script:
+        name: save script
+        adaptor: '@openfn/language-common@latest'
+        credential: null
+        body:
+          path: save-script.js
+
+      parse-script:
+        name: parse script
+        adaptor: '@openfn/language-common@latest'
+        credential: null
+        body:
+          path: parse-script.js
+
+    triggers:
+      webhook:
+        type: webhook
+        enabled: true
+    edges:
+      webhook->save-script:
+        source_trigger: webhook
+        target_job: save-script
+        condition_type: always
+        enabled: true
+      save-script->parse-script:
+        source_job: save-script
+        target_job: parse-script
+        condition_type: on_job_success
+        enabled: true

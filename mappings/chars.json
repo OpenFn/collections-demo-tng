@@ -1,0 +1,22 @@
+{
+  "picard": true,
+  "data": true,
+  "troi": true,
+  "torres": true,
+  "worf": true,
+  "q": true,
+  "tasha": true,
+  "o'brien": true,
+  "bailiff": true,
+  "soldier": true,
+  "zorn": true,
+  "riker": true,
+  "wesley": true,
+  "crusher": true,
+  "laforge": "Jordi Laforge",
+  "mccoy": true,
+  "ensign": true,
+  "computer": true,
+  "security": true,
+  "(then he gets beamed away, screaming)  riker": true
+}

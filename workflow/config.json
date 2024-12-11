@@ -1,0 +1,8 @@
+{
+  "apiKey": "<-- GET A KEY FROM THE ENDPOINT APP ->",
+  "specPath": "./project.yaml",
+  "statePath": ".state.json",
+  "endpoint": "https://demo.openfn.org",
+
+  "_webhook": "http://demo.openfn.org/i/0b977917-a6db-43ea-8d49-63ae1eebe869"
+}

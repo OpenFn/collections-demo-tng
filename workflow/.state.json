@@ -1,0 +1,97 @@
+{
+  "id": "00863200-fe33-4aed-976e-9d47d8438d8d",
+  "name": "collections-demo",
+  "description": "TNG demo\n",
+  "inserted_at": "2024-12-10T12:07:32Z",
+  "updated_at": "2024-12-10T17:25:39Z",
+  "scheduled_deletion": null,
+  "history_retention_period": null,
+  "project_credentials": {},
+  "dataclip_retention_period": null,
+  "workflows": {
+    "Upload-Scripts": {
+      "id": "7961139a-b4bf-41a2-984c-def663e18eff",
+      "name": "Upload Scripts",
+      "inserted_at": "2024-12-10T12:08:49Z",
+      "updated_at": "2024-12-10T17:58:07Z",
+      "deleted_at": null,
+      "concurrency": null,
+      "lock_version": 13,
+      "triggers": {
+        "webhook": {
+          "enabled": true,
+          "id": "0b977917-a6db-43ea-8d49-63ae1eebe869",
+          "type": "webhook"
+        }
+      },
+      "jobs": {
+        "save-script": {
+          "id": "a795ac2a-c746-4722-8daf-0ce57e901ec2",
+          "name": "save script",
+          "body": "collections.set(\"tng-scripts\", (item) => `${item.episode}`, $.data);\n",
+          "adaptor": "@openfn/language-common@latest",
+          "project_credential_id": null
+        },
+        "parse-script": {
+          "id": "7d7d86d6-8eaa-478d-805a-5598f4f082b6",
+          "name": "parse script",
+          "body": "fn((state) => {\n  const { text, episode, title } = state.data;\n  console.log(`Parsing lines for ${episode} - ${title}`);\n\n  const characters = {};\n\n  // pull out each line\n  const lines = text\n    .split(\"\\n\")\n    .filter((line) => line.length)\n    .filter((line) => /[A-Z]+\\:/.test(line))\n    .map((line, index) => {\n      const [name, ...rest] = line.split(\":\");\n      const character = name.trim().toLowerCase();\n      characters[character] = true;\n      return {\n        id: `${character}-${episode}-${index}`,\n        character,\n        episode,\n        title,\n        quote: rest.join(\"\").trim(),\n      };\n    });\n\n  console.log(`Parsed ${lines.length} lines!`);\n  console.log(\"First line:\");\n  console.log(lines[0]);\n\n  return {\n    lines,\n    characters,\n    ...state,\n  };\n});\n\n// Now upload all the values\ncollections.set(\"tng-lines\", (item) => item.id, $.lines);\n\n// Now update the character map\ncollections.get(\"tng-char-map\", \"characters\");\n\n// Add new characters to the map\nfn((state) => {\n  console.log(\"Updating character map\");\n\n  const map = state.data;\n\n  for (const id in state.characters) {\n    if (!id in map) {\n      console.log(\"Adding character\", id);\n      map[id] = false;\n    }\n  }\n\n  return {\n    characters: map,\n    ...state,\n  };\n});\n\ncollections.set(\"tng-char-map\", \"characters\", $.characters);\n",
+          "adaptor": "@openfn/language-common@latest",
+          "project_credential_id": null
+        }
+      },
+      "edges": {
+        "webhook->save-script": {
+          "enabled": true,
+          "id": "da52145e-55f8-4a6a-8c20-fcd8a7df2580",
+          "source_trigger_id": "0b977917-a6db-43ea-8d49-63ae1eebe869",
+          "target_job_id": "a795ac2a-c746-4722-8daf-0ce57e901ec2",
+          "condition_type": "always"
+        },
+        "save-script->parse-script": {
+          "enabled": true,
+          "id": "eca6e18e-87f3-4f4d-80de-ce1ad4041787",
+          "source_job_id": "a795ac2a-c746-4722-8daf-0ce57e901ec2",
+          "target_job_id": "7d7d86d6-8eaa-478d-805a-5598f4f082b6",
+          "condition_type": "on_job_success"
+        }
+      }
+    },
+    "Get-Quote": {
+      "id": "57b91c20-b5ab-47e9-ae99-60924e0ebe61",
+      "name": "Get Quote",
+      "inserted_at": "2024-12-10T17:13:31Z",
+      "updated_at": "2024-12-11T10:52:33Z",
+      "deleted_at": null,
+      "concurrency": null,
+      "lock_version": 18,
+      "triggers": {
+        "webhook": {
+          "enabled": true,
+          "id": "785f8c45-2ea1-451d-8f7e-059fcf102e32",
+          "type": "webhook"
+        }
+      },
+      "jobs": {
+        "Get-quote": {
+          "id": "94d51624-1f68-40b8-856e-5776030ee9a5",
+          "name": "Get quote",
+          "body": "const randInt = (max) => Math.floor(Math.random() * max)\n\ncollections.get(\"tng-lines\", `*${$.data.character}*`).then((state) => {\n  return {\n    ...state,\n    lines: state.data,\n  };\n});\n\ncollections.get(\"tng-char-map\", \"characters\").then((state) => {\n  return {\n    ...state,\n    characters: state.data,\n  };\n});\n\nfn((state) => {\n  console.log(`Fetched ${Object.keys(state.lines).length} lines`);\n\n  const { value: quote } = state.lines[randInt(state.lines.length)];\n  const name = state.characters[quote.character] || quote.character;\n\n  console.log (`\n\"${quote.quote}\"\n -- ${name} - ${quote.title}\n`);\n\n  return state.data;\n});\n\n// TODO post our quote somewhere!\n",
+          "adaptor": "@openfn/language-common@latest",
+          "project_credential_id": null
+        }
+      },
+      "edges": {
+        "webhook->Get-quote": {
+          "enabled": true,
+          "id": "ab08dcbf-1ca9-4e1d-89dd-efaaedc38acd",
+          "source_trigger_id": "785f8c45-2ea1-451d-8f7e-059fcf102e32",
+          "target_job_id": "94d51624-1f68-40b8-856e-5776030ee9a5",
+          "condition_type": "always"
+        }
+      }
+    }
+  },
+  "retention_policy": "retain_all",
+  "requires_mfa": false
+}
