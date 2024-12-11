@@ -36,21 +36,12 @@ This guide assumes users on Linux or Mac. Everything should work on Windows but 
 
 ### Platform setup
 
-This repo is setup to use Collections from demo.openfn.org.
+This repo is setup to use Collections from demo.openfn.org. You may want to prefix project and collection names with your name to ensure it's unique.
 
 - Log in to demo.openfn.org
 - Get a Personal Access Token and save it to apiKey
-- Create Collections ``
 
-Alternatively, you can use a local Lightning instance. As well as setting u
-
-Otherwise, when following these instructions take care to replace demo.opennf.org with localhost:4000.
-
-Make a note of the project ID, we'll need that in a minute. In the URL on the app, the project id is the long hash after `projects/` and before `/w`:
-
-```
-https://demo.openfn.org/projects/00863200-fe33-4aed-976e-9d47d8438d8d/w
-```
+Alternatively, you can use a local Lightning instance. When following these instructions take care to replace demo.openfn.org with localhost:4000.
 
 ### Local Setup
 
@@ -81,7 +72,7 @@ export OPENFN_ENDPOINT="<your-openfn-endpoint>
 
 Don't forget to source your shell.
 
-Note that you can also pass `--lightning-url <www>` and `--token <abc>` to each command, if you're going to be working with different deployments.
+Note that you can also pass `--lightning <www>` and `--token <abc>` to each command, if you're going to be working with different deployments.
 
 If you've set everything up correctly, you should be able run this and get no data back:
 
@@ -91,25 +82,67 @@ openfn collections get tng-char-map \*
 
 Note: the `*` character (used here as a wildcard, as in, "get all") has special meaning in bash shells and may be expanded. Make sure to escape it. It's fine to use `*` in a string, like `openfn collections get tng-char-map 2024*`
 
+Finally, copy out your PAT and paste it into `workflow/config.json`
+
 ### Deploying the workflow
 
-This repo contains a complete OpenFn project in the `workflow` folder. Now we need to push it to the OpenFn app.
+This repo contains a complete OpenFn project in the `workflow` folder - all the code needed to run the demo. Rather than copy and pasting it into the app, we'll upload it directly with the CLI.
 
-We can use the CLI to deploy the project with the following command:
+In the `workflow` folder you'll find the main project.yaml, which is the file that OpenFn uses to run your workflow. You'll also find JavaScript files for our actual steps - `save-script.js`, `parse-script.js` and `get-quote.js`. These files contain the business logic of our demo. Feel free to take a look - but we'll explore the code and functionality in more detail later.
+
+You'll need to step into the `workflow` folder (`cd workflow`) and then run:
 
 ```bash
-
+openfn deploy -c ./config.json
 ```
+
+Note: if you have previously used the CLI to pull or deploy, you should unset or override OPENFN_ENDPOINT and OPENFN_API_KEY.
+
+This will read the project.yaml on disk, contact the app, and attempt to create a new project.
+
+You'll be asked to confirm the changes - press y to do so - and once it's finished, you'll see a new `.state.json` file on disk. This file tracks your newly created project against local changes to the project.yaml.
+
+But don't worry about that - check your app and you should see a brand new Collections Demo project.
+
+We're almost ready to dig in and start playing with our Collections workflows - we've just got one more piece of admin to take care of.
+
+### Creating Collections
+
+Collections must be created from the app's admin menu before they can be used.
+
+Create 3 Collections `tng-char-map`, `tng-lines` and `tng-scripts` and give each access to your new project.
+
+### Configure this repo
+
+In the app, open up the inspector and open the Upload Scripts workflow. Click on the webhook trigger and copy the webhook URL.
+
+Edit `workflow/config.json` locally and paste the URL into the `_webhook` key.
+
+This will tell your local repo where to load script data to. We'll get to that stuff shortly.
+
+The `_webhook` key is non-standard key used for this demo, and has no meaning to CLI deploy.
 
 ### Upload scripts
 
-First off, we'll upload the scripts
+Now we're all set up: we've installed our local dependencies, we've got a demo project set up with our workflows and we've set up our Collections.
 
-A simple TypeScript app in this repo will parse the script files, extract lines of dialog, and upload them straight
+You'll notice the project has two Workflows: Upload Scripts and Get Quote.
 
-### Parsing Scripts
+Let's take a look at Upload Scripts. This workflow accepts data in a webhook, adds it to a Collection, then parses it into a second collection.
 
-The Workflow is setup to take script data from the incoming webhook, process it, and insert it into a collection.
+You can look at the local `workflow/parse-script.js` and `workflow/save-script.js` in your editor, or you can look at the Workflow on OpenFn.
+
+[TODO more explanation? Is this the place?]
+
+So before we can run the Workflow, we need to post some data to it. That's what this repo is for: the repo holds all our source data and has a convenient script which will post each episide up to the app.
+
+To run the script and upload every episode of Star Trek: The Next Generation into OpenFn, run this from root:
+
+```bash
+bun upload.ts
+```
+
+This will very quickly upload the data to OpenFn. If you take a look at the History page, you'll see the generated work orders receive each request and start processing data.
 
 ### Mappings
 
@@ -182,7 +215,21 @@ At this point we have:
 
 So we're all set to generate a random quote from a character in the show.
 
-The process for this is really easy:
+The process for this is really easy. In the app, open the Get Quote workflow and open the code inspector.
+
+In the Input box, paste this payload:
+
+```json
+{
+  "data": {
+    "character": "picard"
+  }
+}
+```
+
+This simulates a request to generate a quote from Picard.
+
+When we hit Create New Work Order, this input will be passed into the workflow. After a moment your logs should show the code being executed and you'll notice the output - including a nicely mapped character name.
 
 ## Next Steps
 

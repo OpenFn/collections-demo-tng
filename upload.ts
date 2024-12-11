@@ -34,7 +34,7 @@ for (const ep of eps.sort()) {
   }
 }
 
-console.log(`Triggered ${count} work orders on OpenFn`);
+console.log(`Triggered ${count} work orders on OpenFn at ${config._webhook}`);
 
 async function parseEpisode(ep: number) {
   const path = `${WEB_ROOT}${ep}.html`;
