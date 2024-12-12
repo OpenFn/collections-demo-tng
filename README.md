@@ -110,7 +110,7 @@ We're almost ready to dig in and start playing with our Collections workflows - 
 
 ### Creating Collections
 
-Collections must be created from the app's admin menu before they can be used.
+Collections must be created from the app's Admin menu before they can be used.
 
 Create 3 Collections `tng-char-map`, `tng-lines` and `tng-scripts` and give each access to your new project.
 
@@ -133,8 +133,6 @@ You'll notice the project has two Workflows: Upload Scripts and Get Quote.
 Let's take a look at Upload Scripts. This workflow accepts data in a webhook, adds it to a Collection, then parses it into a second collection.
 
 You can look at the local `workflow/parse-script.js` and `workflow/save-script.js` in your editor, or you can look at the Workflow on OpenFn.
-
-[TODO more explanation? Is this the place?]
 
 So before we can run the Workflow, we need to post some data to it. That's what this repo is for: the repo holds all our source data and has a convenient script which will post each episide up to the app.
 
@@ -204,7 +202,7 @@ That introduces two problems for us:
 These issues are easy to navigate. We just make sure to:
 
 1. Get the currently mapping collection first
-1. Add new character names to the map
+1. Add NEW character names to the map
 1. Set our new mapping object to the collection
 
 ### Getting a quote
@@ -229,7 +227,7 @@ In the Input box, paste this payload:
 }
 ```
 
-This simulates a request to generate a quote from Picard.
+This simulates a HTTP request coming into the webhook at OpenFn to generate a quote from Picard.
 
 When we hit Create New Work Order, this input will be passed into the workflow. After a moment your logs should show the code being executed and you'll notice the output - including a nicely mapped character name.
 
