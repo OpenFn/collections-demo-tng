@@ -11,6 +11,13 @@ const eps = await readdir(WEB_ROOT);
 // TODO can we log something about size in mb and word count for each upload?
 let count = 0;
 
+// Impose a limit for the demo because:
+// 1) It takes ages to process all items (esp with concurrency 1)
+// 2) The demo server doesn't have much memory and can blow up!
+const limit = 50;
+// Restore this to upload all episodes
+// const limit = Infinity;
+
 // Load every episode on disk
 for (const ep of eps.sort()) {
   if (ep.endsWith(".html")) {
@@ -27,9 +34,15 @@ for (const ep of eps.sort()) {
         },
         body: JSON.stringify(result),
       });
-      count++;
+
       console.log("Done!");
       console.log();
+
+      count++;
+      if (count >= limit) {
+        console.log("Reached limit - exiting early!");
+        break;
+      }
     }
   }
 }

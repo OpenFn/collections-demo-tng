@@ -27,9 +27,9 @@ fn((state) => {
   console.log(lines[0]);
 
   return {
+    ...state,
     lines,
     characters,
-    ...state,
   };
 });
 
@@ -54,8 +54,8 @@ fn((state) => {
   }
 
   return {
-    characters: map,
     ...state,
+    characters: map,
   };
 });
 
