@@ -46,7 +46,7 @@ fn((state) => {
   const map = state.data;
 
   for (const id in state.characters) {
-    if (!id in map) {
+    if (!(id in map)) {
       console.log("Adding character", id);
       map[id] = false;
     }

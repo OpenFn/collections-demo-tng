@@ -98,6 +98,8 @@ openfn deploy -c ./config.json
 
 Note: if you have previously used the CLI to pull or deploy, you should unset or override OPENFN_ENDPOINT and OPENFN_API_KEY.
 
+Note: the demo app resets daily. You may need to delete `.state.json` if you've previously deployed this demo project.
+
 This will read the project.yaml on disk, contact the app, and attempt to create a new project.
 
 You'll be asked to confirm the changes - press y to do so - and once it's finished, you'll see a new `.state.json` file on disk. This file tracks your newly created project against local changes to the project.yaml.
