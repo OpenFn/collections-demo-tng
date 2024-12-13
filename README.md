@@ -11,6 +11,10 @@ The demo can be run straight out of this repo and uses our sandbox platform at d
 - search collection keys to satisfy a user query
 - build and use a data map
 
+## Getting Help
+
+This readme is designed to help walk through setting up and running the demo - but it's not comprehensive and makes a lot of assumptions. It's quite a high-level guide. For help, check docs.openfn.org or post a question to community.openfn.org
+
 ## Further Reading
 
 You can read more about Collections from the following links:
@@ -38,10 +42,10 @@ This guide assumes users on Linux or Mac. Everything should work on Windows but 
 
 This repo is setup to use Collections from demo.openfn.org. You may want to prefix project and collection names with your name to ensure it's unique.
 
-- Log in to demo.openfn.org
-- Get a Personal Access Token and save it to apiKey
+- Log in to demo.openfn.org with credentials `super@openfn.org` and password `welcome12345`
+- Get a Personal Access Token and save it to your env (`OPENFN_PAT`) and `apiKey` in `workflow/config.json`
 
-Alternatively, you can use a local Lightning instance. When following these instructions take care to replace demo.openfn.org with localhost:4000.
+Alternatively, you can use a local Lightning instance, or any other deployment. When following these instructions take care to replace demo.openfn.org with the server address.
 
 ### Local Setup
 
